@@ -1,0 +1,84 @@
+# Generating Sample Data
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Generate sample data
+np.random.seed(0) # Sets the seed for reproducibility of random numbers.
+X = 2 * np.random.rand(100, 1) # Generates 100 random numbers between 0 and 2, shaping them into a column vector.
+y = 4 + 3 * X + np.random.randn(100, 1) # Generates y-values using a linear model y= 4+ 3x + noise,  where noise is normally distributed.
+
+plt.scatter(X, y) #  Plots the generated data points (X vs y) as a scatter plot.
+plt.xlabel("X")
+plt.ylabel("y")
+plt.title("Generated Data")
+plt.show()
+
+
+# Linear Regression with Gradient Descent
+
+# Initialize parameters wo(intercept) and w1(slope) randomly
+w0 = np.random.randn(1) 
+w1 = np.random.randn(1)
+learning_rate = 0.01 # Learning rate controls the step size in gradient descent.
+n_iterations = 1000 # Number of iterations for gradient descent.
+m = len(X) # Number of data points.
+
+# Define the prediction function
+def predict(X, w0, w1): # Computes predictions given x,w0 and w1
+    return w0 + w1 * X
+
+# Define the gradient descent algorithm
+for iteration in range(n_iterations):
+    y_pred = predict(X, w0, w1) # Predicts y-values using current parameters w0 and w1
+    error = y_pred - y # Computes error between predicted and actual y-values.
+    # Compute gradients using the formula derived from the Mean Squared Error (MSE) derivative.
+    w0_gradient = (2/m) * np.sum(error)
+    w1_gradient = (2/m) * np.sum(error * X)
+    # Updatw w0 and w1 using the gradients and learning rate
+    w0 -= learning_rate * w0_gradient
+    w1 -= learning_rate * w1_gradient
+    
+    if iteration % 100 == 0:
+        mse = np.mean(error**2)
+        print(f"Iteration {iteration}: MSE = {mse}")
+
+print(f"Final parameters: w0 = {w0}, w1 = {w1}")
+
+
+# Plotting the Fitted Line
+
+# Plot the original data and the fitted line
+plt.scatter(X, y)
+plt.plot(X, predict(X, w0, w1), color='red')
+plt.xlabel("X")
+plt.ylabel("y")
+plt.title("Linear Regression Fit")
+plt.show()
+
+# Cost Function Landscape Plot
+
+# Compute the cost function for a range of values
+W0, W1 = np.meshgrid(np.linspace(-1, 7, 100), np.linspace(-1, 5, 100)) # Creates a grid of values for w0 and w1.
+Cost = np.zeros(W0.shape)
+
+for i in range(W0.shape[0]):
+    for j in range(W0.shape[1]):
+      # Current values of w0 and w1 from the grid
+        w0_test = W0[i, j]
+        w1_test = W1[i, j]
+        # Predicted y-values using current w0 and w1
+        y_pred_test = w0_test + w1_test * X
+        # Computes MSE for the current w0 and w1 values
+        Cost[i, j] = np.mean((y_pred_test - y) ** 2)
+
+# Plot the cost function landscape
+fig = plt.figure(figsize=(10, 7)) # Creates a new figure with a specified size.
+ax = fig.add_subplot(111, projection='3d') # Adds a 3D subplot to the figure.
+ax.plot_surface(W0, W1, Cost, cmap='viridis') # Plots the 3D surface of the cost function landscape.
+ax.set_xlabel('w0')
+ax.set_ylabel('w1')
+ax.set_zlabel('Cost')
+ax.set_title('Cost Function Landscape')
+plt.show()
+
